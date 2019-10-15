@@ -1,31 +1,45 @@
+const bcrypt = require('bcryptjs');
+
 const User = require('../models/User');
 
 module.exports = {
     async show(req, res) {
-        const { id } = req.params;
+        try {
+            const { id } = req.params;
 
-        const user = await User.findById(id);
+            const user = await User.findById(id);
 
-        user.password = undefined;
+            user.password = undefined;
 
-        return res.json(user);
+            return res.json(user);
+        } catch (err) {
+            return res.json({ error: err });
+        }
     },
 
     async store(req, res) {
-        const { nickname, password } = req.body;
+        try {
+            const { nickname, password } = req.body;
 
-        let user = await User.findOne({ nickname: nickname });
+            let user = await User.findOne({ nickname: nickname }).select('+password');
 
-        if (user && user.password != password) {
-            return res.json({ error: 'Password invalid' });
-        }
+            if (user && await !bcrypt.compare(password, user.password)) {
+                return res.json({ error: 'Password invalid' });
+            }
 
-        if (user && user.password === password) {
+            if (user && await bcrypt.compare(password, user.password)) {
+                user.password = undefined;
+
+                return res.json(user);
+            }
+
+            user = await User.create({ nickname, password });
+
+            user.password = undefined;
+
             return res.json(user);
+        } catch (err) {
+            return res.json({ error: err });
         }
-
-        user = await User.create({ nickname, password });
-
-        return res.json(user);
     },
 }
