@@ -23,9 +23,9 @@ module.exports = {
 
     async store(req, res) {
         try {
-            const { nickname, password } = req.body;
+            const { cpf, password } = req.body;
 
-            let user = await User.findOne({ nickname: nickname }).select('+password');
+            let user = await User.findOne({ cpf }).select('+password');
 
             if (user && await !bcrypt.compare(password, user.password)) {
                 return res.json({ error: 'Password invalid' });
@@ -37,7 +37,7 @@ module.exports = {
                 return res.json(user);
             }
 
-            user = await User.create({ nickname, password });
+            user = await User.create({ cpf, password });
 
             user.password = undefined;
 

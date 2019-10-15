@@ -10,6 +10,11 @@ module.exports = {
 
     async show(req, res) {
         const { _id } = req.params;
+
+        if (_id) {
+            return res.json({ error: '_id required' });
+        }
+
         const product = await Product.findById(_id);
 
         return res.json(product);
@@ -19,6 +24,10 @@ module.exports = {
         const { _id } = req.headers;
         const { filename } = req.file;
         const { name, description, price } = req.body;
+
+        if (!_id) {
+            return res.json({ error: '_id required' });
+        }
 
         let user = await User.findById(_id);
 
