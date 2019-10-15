@@ -9,8 +9,8 @@ module.exports = {
     },
 
     async show(req, res) {
-        const { id } = req.params;
-        const product = await Product.findById(id);
+        const { _id } = req.params;
+        const product = await Product.findById(_id);
 
         return res.json(product);
     },
